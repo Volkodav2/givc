@@ -1,0 +1,136 @@
+----------Процедуры для таблицы car----------
+
+create PROCEDURE [dbo].[spr_car_select_new]
+(
+    @id   integer = NULL, 
+    @model character varying = NULL,
+@year integer = NULL 
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @tmp TABLE
+    (
+        id integer,
+        model character varying,
+year integer 
+    );
+
+    INSERT INTO @tmp (id, model, year)
+    SELECT 
+        id,
+        model, year
+    FROM car
+    WHERE id = CASE @id
+        WHEN NULL THEN id
+        ELSE @id
+    END
+    SELECT *
+    FROM @tmp
+    ORDER BY model, year
+END
+GO
+GRANT EXECUTE ON [dbo].[spr_car_select_new] TO [public] AS [dbo]
+GO
+
+
+create PROCEDURE [dbo].[spr_car_insert_update_new]
+(
+    @id integer = NULL,
+    @model character varying = NULL,
+@year integer = NULL
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN
+        SET NOCOUNT ON
+        DECLARE @err VARCHAR(500) = ''
+        IF @err = ''
+        BEGIN
+            IF ISNULL(@id, 0) = 0
+                INSERT INTO car 
+                (
+                    model, year
+                )
+                SELECT @model, @year
+                SET @id = SCOPE_IDENTITY()
+            ELSE
+                UPDATE car
+                SET model = @model,
+year = @year
+                WHERE id = @id;
+        END
+        EXEC spr_car_select_new @id = @id
+    END
+END
+GO
+GRANT EXECUTE ON [dbo].[spr_car_insert_update_new] TO [public] AS [dbo];
+
+
+----------Процедуры для таблицы droids----------
+
+create PROCEDURE [dbo].[spr_droids_select_new]
+(
+    @id   integer = NULL, 
+    @model character varying = NULL 
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @tmp TABLE
+    (
+        id integer,
+        model character varying 
+    );
+
+    INSERT INTO @tmp (id, model)
+    SELECT 
+        id,
+        model
+    FROM droids
+    WHERE id = CASE @id
+        WHEN NULL THEN id
+        ELSE @id
+    END
+    SELECT *
+    FROM @tmp
+    ORDER BY model
+END
+GO
+GRANT EXECUTE ON [dbo].[spr_droids_select_new] TO [public] AS [dbo]
+GO
+
+
+create PROCEDURE [dbo].[spr_droids_insert_update_new]
+(
+    @id integer = NULL,
+    @model character varying = NULL
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN
+        SET NOCOUNT ON
+        DECLARE @err VARCHAR(500) = ''
+        IF @err = ''
+        BEGIN
+            IF ISNULL(@id, 0) = 0
+                INSERT INTO droids 
+                (
+                    model
+                )
+                SELECT @model
+                SET @id = SCOPE_IDENTITY()
+            ELSE
+                UPDATE droids
+                SET model = @model
+                WHERE id = @id;
+        END
+        EXEC spr_droids_select_new @id = @id
+    END
+END
+GO
+GRANT EXECUTE ON [dbo].[spr_droids_insert_update_new] TO [public] AS [dbo];
+
+
